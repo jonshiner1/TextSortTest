@@ -11,34 +11,67 @@ using System.Threading.Tasks;
 
 namespace SimpleTest
 {
-    public static partial class MyTest
+    public static class MyTest
     {
-        public static string CalculateTotal(string someInput)
+        public static string CalculateTotal(string someInput , ILogger logger)
         {
-            var log = new ConsoleLogger();
             if (someInput == null)
             {
                 throw new DataMisalignedException("data not correct");
             }
             
-            log.Log("start CalculateTotal");
+            logger.Log("start CalculateTotal");
 
-            //algorithm
-            if (someInput == "Go baby, go")
-            {                
-                return "baby Go go";
-            }
+            string output = Output(someInput);
 
-            log.Log("end CalculateTotal");
-            return someInput;            
+            logger.Log("end CalculateTotal");
+
+            return output;            
         }
 
-        internal class ConsoleLogger : ILogger
+        private static string Output(string input)
         {
-            public void Log(string stuff)
+            char[] removeChars = { '.', ',', '\'', ';' };
+            string cleansedInput = CleansedInput(input, removeChars);
+            List<KeyValuePair<string, string>> inputList = new List<KeyValuePair<string, string>>();
+
+            List<KeyValuePair<string, string>> reorderedInputList;
+            string[] strings;
+
+            foreach (string word in cleansedInput.Split(' '))
             {
-                Console.WriteLine(stuff);
+                inputList.Add(new KeyValuePair<string, string>(word.ToUpper(), word));
             }
+
+            reorderedInputList = inputList.OrderBy(x => x.Key).ThenByDescending(x => x.Value).ToList();
+
+            strings = reorderedInputList.Select(x => x.Value).ToArray();
+
+            return string.Join(" ", strings);
+
+        }
+
+        private static string CleansedInput(string input, char[] removeChars)
+        {
+            StringBuilder stringBuilder;
+            List<string> cleansedWords = new List<string>();
+
+            foreach (string word in input.Split(' ').ToList())
+            {
+                stringBuilder = new StringBuilder();
+
+                foreach (char c in word)
+                {
+                    if (!removeChars.Contains(c))
+                    {
+                        stringBuilder.Append(c);
+                    }
+                }
+
+                cleansedWords.Add(stringBuilder.ToString());
+            }
+
+            return string.Join(" ", cleansedWords.ToArray());
         }
 
     }

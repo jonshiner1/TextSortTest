@@ -4,12 +4,15 @@
 
 namespace SimpleTest
 {
-    public static partial class MyTest
+    public class ConsoleLogger : ILogger
     {
-        private interface ILogger
+        public void Log(string stuff)
+        {
+            Console.WriteLine(stuff);
+        }
+    }
+    public interface ILogger
         {
             void Log(string stuff);
         }
-
-    }
 }
